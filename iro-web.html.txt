@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IRO – Issues Reporting Outlet</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --brand:    #4f46e5;
+      --brand-dk: #3730a3;
+      --brand-lt: #e0e7ff;
+      --accent:   #10b981;
+      --warn:     #f59e0b;
+      --danger:   #ef4444;
+      --bg:       #f8faff;
+      --surface:  #ffffff;
+      --border:   #e5e7eb;
+      --txt:      #1e1b4b;
+      --muted:    #6b7280;
+      --radius:   12px;
+      --shadow:   0 4px 24px rgba(79,70,229,.10);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--txt); min-height: 100vh; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: .6rem; font-size: 1.2rem; font-weight: 700; color: var(--brand); text-decoration: none; }
+    .logo-icon {
+      width: 36px; height: 36px; background: var(--brand);
+      border-radius: 9px; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1rem; font-weight: 900;
+    }
+    .nav-links { display: flex; gap: .5rem; }
+    .nav-links a {
+      padding: .45rem 1rem; border-radius: 8px; font-size: .9rem; font-weight: 500;
+      text-decoration: none; color: var(--muted); transition: all .2s;
+    }
+    .nav-links a:hover, .nav-links a.active { background: var(--brand-lt); color: var(--brand); }
+
+    /* ── PAGE SYSTEM ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #312e81 0%, #4f46e5 60%, #818cf8 100%);
+      padding: 5rem 2rem 4rem;
+      text-align: center; color: #fff;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3);
+      border-radius: 99px; padding: .35rem 1rem; font-size: .8rem; font-weight: 600; letter-spacing: .04em;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; line-height: 1.1; margin-bottom: 1rem; }
+    .hero p { font-size: 1.1rem; color: #c7d2fe; max-width: 540px; margin: 0 auto 2.5rem; line-height: 1.7; }
+    .hero-ctas { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .75rem 1.75rem; border-radius: var(--radius); font-size: .95rem; font-weight: 600; cursor: pointer; border: none; text-decoration: none; transition: all .2s; }
+    .btn-primary { background: #fff; color: var(--brand); }
+    .btn-primary:hover { background: #e0e7ff; transform: translateY(-1px); }
+    .btn-outline { background: transparent; color: #fff; border: 2px solid rgba(255,255,255,.5); }
+    .btn-outline:hover { background: rgba(255,255,255,.1); }
+    .btn-brand { background: var(--brand); color: #fff; box-shadow: 0 4px 14px rgba(79,70,229,.35); }
+    .btn-brand:hover { background: var(--brand-dk); transform: translateY(-1px); }
+
+    /* ── STATS BAR ── */
+    .stats-bar { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; padding: 2rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+    .stat { text-align: center; }
+    .stat-value { font-size: 1.6rem; font-weight: 800; color: var(--brand); }
+    .stat-label { font-size: .75rem; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
+
+    /* ── SECTIONS ── */
+    .section { padding: 4rem 2rem; max-width: 1100px; margin: 0 auto; }
+    .section-title { text-align: center; margin-bottom: 2.5rem; }
+    .section-title .eyebrow { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--brand); margin-bottom: .5rem; }
+    .section-title h2 { font-size: 2rem; font-weight: 800; color: var(--txt); }
+
+    /* ── FEATURE CARDS ── */
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+    .feature-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.75rem; transition: all .25s;
+    }
+    .feature-card:hover { border-color: var(--brand); box-shadow: var(--shadow); transform: translateY(-3px); }
+    .feature-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 1rem; }
+    .feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: .5rem; }
+    .feature-card p { font-size: .875rem; color: var(--muted); line-height: 1.6; }
+
+    /* ── REPORT FORM PAGE ── */
+    .form-page { max-width: 680px; margin: 3rem auto; padding: 0 1.5rem 4rem; }
+    .form-header { margin-bottom: 2rem; }
+    .form-header h2 { font-size: 1.75rem; font-weight: 800; }
+    .form-header p { color: var(--muted); margin-top: .4rem; }
+    .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; box-shadow: var(--shadow); }
+    .form-group { margin-bottom: 1.25rem; }
+    label { display: block; font-size: .875rem; font-weight: 600; color: var(--txt); margin-bottom: .45rem; }
+    label span { color: var(--danger); }
+    input[type=text], input[type=email], select, textarea {
+      width: 100%; padding: .7rem 1rem; border: 1.5px solid var(--border); border-radius: 9px;
+      font-size: .9rem; font-family: inherit; color: var(--txt); background: var(--bg);
+      transition: border-color .2s, box-shadow .2s; outline: none;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(79,70,229,.12); }
+    textarea { resize: vertical; min-height: 110px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .urgency-group { display: flex; gap: .75rem; }
+    .urgency-btn {
+      flex: 1; padding: .6rem; border: 1.5px solid var(--border); border-radius: 9px;
+      text-align: center; font-size: .8rem; font-weight: 600; cursor: pointer; transition: all .2s; background: var(--bg);
+    }
+    .urgency-btn.low.selected  { border-color: var(--accent); background: #d1fae5; color: #065f46; }
+    .urgency-btn.med.selected  { border-color: var(--warn);   background: #fef3c7; color: #92400e; }
+    .urgency-btn.high.selected { border-color: var(--danger); background: #fee2e2; color: #991b1b; }
+    .form-submit { width: 100%; padding: .85rem; margin-top: .5rem; font-size: 1rem; border-radius: 10px; }
+    .form-note { font-size: .78rem; color: var(--muted); margin-top: .75rem; text-align: center; }
+
+    /* ── TRACKER PAGE ── */
+    .tracker-page { max-width: 820px; margin: 3rem auto; padding: 0 1.5rem 4rem; }
+    .tracker-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; }
+    .tracker-header h2 { font-size: 1.75rem; font-weight: 800; }
+    .filter-bar { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .filter-btn { padding: .4rem .9rem; border: 1.5px solid var(--border); border-radius: 99px; font-size: .8rem; font-weight: 600; cursor: pointer; background: var(--surface); color: var(--muted); transition: all .2s; }
+    .filter-btn.active, .filter-btn:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-lt); }
+    .issue-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+    .issue-card:hover { box-shadow: var(--shadow); border-color: #c7d2fe; }
+    .issue-meta { flex: 1; }
+    .issue-meta .issue-id { font-size: .72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+    .issue-meta h4 { font-size: .95rem; font-weight: 700; margin: .25rem 0 .3rem; }
+    .issue-meta .issue-info { font-size: .8rem; color: var(--muted); }
+    .badge { display: inline-block; padding: .3rem .75rem; border-radius: 99px; font-size: .75rem; font-weight: 700; }
+    .badge-pending  { background: #fef3c7; color: #92400e; }
+    .badge-progress { background: #dbeafe; color: #1e40af; }
+    .badge-resolved { background: #d1fae5; color: #065f46; }
+    .empty-state { text-align: center; padding: 4rem 2rem; color: var(--muted); }
+    .empty-state .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .empty-state h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: .5rem; }
+
+    /* ── SUCCESS TOAST ── */
+    .toast {
+      position: fixed; bottom: 2rem; right: 2rem; z-index: 999;
+      background: #065f46; color: #fff; padding: 1rem 1.5rem; border-radius: var(--radius);
+      font-size: .9rem; font-weight: 500; box-shadow: 0 8px 24px rgba(0,0,0,.15);
+      display: flex; align-items: center; gap: .6rem;
+      transform: translateY(120%); opacity: 0; transition: all .35s cubic-bezier(.34,1.56,.64,1);
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .hero { padding: 3.5rem 1.5rem 3rem; }
+      nav { padding: 0 1rem; }
+      .nav-links a span { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="logo" href="#" onclick="showPage('home')">
+    <div class="logo-icon">I</div>
+    IRO
+  </a>
+  <div class="nav-links">
+    <a href="#" onclick="showPage('home')"    id="nav-home"    class="active">Home</a>
+    <a href="#" onclick="showPage('report')"  id="nav-report">Report Issue</a>
+    <a href="#" onclick="showPage('tracker')" id="nav-tracker">Track Issues</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     PAGE 1 – HOME / LANDING
+════════════════════════════════════════ -->
+<div id="page-home" class="page active">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">🎓 AAUA Community Platform</div>
+    <h1>IRO<br><span style="font-weight:300;font-size:.6em;color:#c7d2fe;">Issues Reporting Outlet</span></h1>
+    <p>A centralized platform for AAUA students and Akungba, Iwaro, Etioro &amp; Ayegunle indigenes to report and track community issues — fast, easy, and transparent.</p>
+    <div class="hero-ctas">
+      <a class="btn btn-primary" href="#" onclick="showPage('report')">📋 Report an Issue</a>
+      <a class="btn btn-outline" href="#" onclick="showPage('tracker')">📊 Track Reports</a>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-value">4</div><div class="stat-label">Communities covered</div></div>
+    <div class="stat"><div class="stat-value">5</div><div class="stat-label">Issue categories</div></div>
+    <div class="stat"><div class="stat-value">24h</div><div class="stat-label">Response target</div></div>
+    <div class="stat"><div class="stat-value">100%</div><div class="stat-label">Free to use</div></div>
+  </div>
+
+  <!-- Features -->
+  <div class="section">
+    <div class="section-title">
+      <div class="eyebrow">What IRO does</div>
+      <h2>One platform for every community issue</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#e0e7ff">📋</div>
+        <h3>Easy Issue Reporting</h3>
+        <p>Submit security, infrastructure, academic, social, or environmental issues in under 2 minutes — no paperwork needed.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#d1fae5">📊</div>
+        <h3>Real-Time Tracking</h3>
+        <p>Know the status of every issue you report — Pending, In Progress, or Resolved — at any time.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fef3c7">🔔</div>
+        <h3>Status Notifications</h3>
+        <p>Get notified when your reported issue is picked up and when it has been resolved by the appropriate authority.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fee2e2">🛡️</div>
+        <h3>All Communities Covered</h3>
+        <p>Serves AAUA students and all four indigene communities: Akungba, Iwaro, Etioro, and Ayegunle.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#ede9fe">🚨</div>
+        <h3>Urgency Flagging</h3>
+        <p>Mark issues as Low, Medium, or High urgency so administrators prioritize the most critical problems first.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#ecfeff">📁</div>
+        <h3>Issue History</h3>
+        <p>Full log of all submitted issues with timestamps, categories, and resolution notes for transparency.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div style="background:#f0f4ff; padding:4rem 2rem;">
+    <div class="section" style="padding:0;">
+      <div class="section-title">
+        <div class="eyebrow">How it works</div>
+        <h2>Three steps to resolution</h2>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1.5rem; text-align:center;">
+        <div style="background:#fff; border-radius:16px; padding:2rem;">
+          <div style="font-size:2.5rem;margin-bottom:1rem;">📝</div>
+          <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--brand);margin-bottom:.4rem;">Step 01</div>
+          <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:.5rem;">Submit your report</h3>
+          <p style="font-size:.875rem;color:var(--muted);line-height:1.6;">Fill in the issue form with your community, issue type, description and urgency level.</p>
+        </div>
+        <div style="background:#fff; border-radius:16px; padding:2rem;">
+          <div style="font-size:2.5rem;margin-bottom:1rem;">🔍</div>
+          <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--brand);margin-bottom:.4rem;">Step 02</div>
+          <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:.5rem;">Admin reviews</h3>
+          <p style="font-size:.875rem;color:var(--muted);line-height:1.6;">The IRO admin team reviews and assigns your issue to the relevant officer within 24 hours.</p>
+        </div>
+        <div style="background:#fff; border-radius:16px; padding:2rem;">
+          <div style="font-size:2.5rem;margin-bottom:1rem;">✅</div>
+          <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--brand);margin-bottom:.4rem;">Step 03</div>
+          <h3 style="font-size:1.05rem;font-weight:700;margin-bottom:.5rem;">Issue resolved</h3>
+          <p style="font-size:.875rem;color:var(--muted);line-height:1.6;">You are notified once the issue is resolved and can view the outcome in your tracker.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer style="background:#1e1b4b;color:#a5b4fc;text-align:center;padding:2rem;font-size:.85rem;">
+    <div style="font-weight:700;color:#fff;font-size:1.1rem;margin-bottom:.4rem;">IRO – Issues Reporting Outlet</div>
+    <div>Adekunle Ajasin University, Akungba-Akoko · CSC426 Project · 2026</div>
+    <div style="margin-top:.5rem;color:#6366f1;">Not affiliated with university administration · For academic demonstration only</div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE 2 – REPORT AN ISSUE
+════════════════════════════════════════ -->
+<div id="page-report" class="page">
+  <div class="form-page">
+    <div class="form-header">
+      <h2>📋 Report an Issue</h2>
+      <p>Fill in the details below. All fields marked <span style="color:var(--danger)">*</span> are required.</p>
+    </div>
+    <div class="form-card">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name <span>*</span></label>
+          <input type="text" id="f-name" placeholder="e.g. Chidi Okafor" />
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="f-email" placeholder="your@email.com" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Respondent Type <span>*</span></label>
+          <select id="f-type">
+            <option value="">— Select —</option>
+            <option>AAUA Student</option>
+            <option>Akungba Indigene</option>
+            <option>Iwaro Indigene</option>
+            <option>Etioro Indigene</option>
+            <option>Ayegunle Indigene</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Issue Category <span>*</span></label>
+          <select id="f-category">
+            <option value="">— Select —</option>
+            <option>Security</option>
+            <option>Infrastructure</option>
+            <option>Academic</option>
+            <option>Social Conflict</option>
+            <option>Environmental</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Issue Title <span>*</span></label>
+        <input type="text" id="f-title" placeholder="Brief title for the issue" />
+      </div>
+
+      <div class="form-group">
+        <label>Issue Description <span>*</span></label>
+        <textarea id="f-desc" placeholder="Describe the issue in detail — what happened, where, when, and how it affects you or the community..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Urgency Level <span>*</span></label>
+        <div class="urgency-group">
+          <div class="urgency-btn low"  onclick="selectUrgency('Low')"  id="urg-Low">🟢 Low</div>
+          <div class="urgency-btn med"  onclick="selectUrgency('Med')"  id="urg-Med">🟡 Medium</div>
+          <div class="urgency-btn high" onclick="selectUrgency('High')" id="urg-High">🔴 High</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Location / Area</label>
+        <input type="text" id="f-location" placeholder="e.g. Block C Hostel, Akungba Market, etc." />
+      </div>
+
+      <button class="btn btn-brand form-submit" onclick="submitReport()">
+        Submit Issue Report →
+      </button>
+      <p class="form-note">🔒 Your report is reviewed by IRO admin within 24 hours. Anonymous submissions accepted.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE 3 – ISSUE TRACKER
+════════════════════════════════════════ -->
+<div id="page-tracker" class="page">
+  <div class="tracker-page">
+    <div class="tracker-header">
+      <h2>📊 Issue Tracker</h2>
+      <button class="btn btn-brand" onclick="showPage('report')" style="font-size:.85rem;padding:.55rem 1.2rem;">+ Report New Issue</button>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterIssues('all', this)">All Issues</button>
+      <button class="filter-btn" onclick="filterIssues('Pending', this)">Pending</button>
+      <button class="filter-btn" onclick="filterIssues('In Progress', this)">In Progress</button>
+      <button class="filter-btn" onclick="filterIssues('Resolved', this)">Resolved</button>
+    </div>
+
+    <div id="issues-list"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ Issue submitted successfully! You can track it in the Tracker.</div>
+
+<script>
+  // ── Sample seed data ──
+  const seedIssues = [
+    { id:'IRO-001', title:'Broken streetlight near Gate B', type:'AAUA Student',     category:'Infrastructure', urgency:'High',   status:'Resolved',    date:'2026-06-28', location:'Gate B, AAUA' },
+    { id:'IRO-002', title:'Water scarcity in Akungba community', type:'Akungba Indigene', category:'Infrastructure', urgency:'High', status:'In Progress', date:'2026-07-01', location:'Akungba Market area' },
+    { id:'IRO-003', title:'Conflict over land boundary in Iwaro', type:'Iwaro Indigene', category:'Social Conflict', urgency:'Med',  status:'Pending',     date:'2026-07-05', location:'Iwaro Road 3' },
+    { id:'IRO-004', title:'Illegal dumping near Etioro school',   type:'Etioro Indigene', category:'Environmental',  urgency:'Med',  status:'In Progress', date:'2026-07-06', location:'Etioro Primary School' },
+    { id:'IRO-005', title:'Exam timetable clash – 400 level',     type:'AAUA Student',    category:'Academic',       urgency:'Low',  status:'Resolved',    date:'2026-07-03', location:'Faculty of Science' },
+  ];
+
+  let issues = JSON.parse(localStorage.getItem('iro-issues') || 'null') || [...seedIssues];
+  let urgencySelected = '';
+
+  function saveIssues() { localStorage.setItem('iro-issues', JSON.stringify(issues)); }
+
+  // ── Page navigation ──
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    document.getElementById('nav-' + id).classList.add('active');
+    if (id === 'tracker') renderIssues(issues);
+    window.scrollTo(0,0);
+    return false;
+  }
+
+  // ── Urgency selection ──
+  function selectUrgency(level) {
+    urgencySelected = level;
+    ['Low','Med','High'].forEach(l => {
+      const el = document.getElementById('urg-' + l);
+      el.classList.toggle('selected', l === level);
+    });
+  }
+
+  // ── Submit report ──
+  function submitReport() {
+    const name     = document.getElementById('f-name').value.trim();
+    const type     = document.getElementById('f-type').value;
+    const category = document.getElementById('f-category').value;
+    const title    = document.getElementById('f-title').value.trim();
+    const desc     = document.getElementById('f-desc').value.trim();
+
+    if (!name || !type || !category || !title || !desc || !urgencySelected) {
+      alert('Please fill in all required fields and select an urgency level.');
+      return;
+    }
+
+    const newIssue = {
+      id:       'IRO-' + String(issues.length + 1).padStart(3,'0'),
+      title,
+      type,
+      category,
+      urgency:  urgencySelected,
+      status:   'Pending',
+      date:     new Date().toISOString().split('T')[0],
+      location: document.getElementById('f-location').value.trim() || 'Not specified',
+    };
+
+    issues.unshift(newIssue);
+    saveIssues();
+
+    // Clear form
+    ['f-name','f-email','f-title','f-desc','f-location'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-type').value = '';
+    document.getElementById('f-category').value = '';
+    urgencySelected = '';
+    ['Low','Med','High'].forEach(l => document.getElementById('urg-' + l).classList.remove('selected'));
+
+    // Show toast
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3500);
+
+    setTimeout(() => showPage('tracker'), 1200);
+  }
+
+  // ── Render issues ──
+  function renderIssues(list) {
+    const container = document.getElementById('issues-list');
+    if (!list.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><h3>No issues found</h3><p>No issues match this filter, or none have been submitted yet.</p></div>`;
+      return;
+    }
+    container.innerHTML = list.map(issue => {
+      const badgeClass = { Pending:'badge-pending', 'In Progress':'badge-progress', Resolved:'badge-resolved' }[issue.status] || '';
+      const urgColor   = { Low:'#065f46', Med:'#92400e', High:'#991b1b' }[issue.urgency] || '#555';
+      return `
+        <div class="issue-card">
+          <div class="issue-meta">
+            <div class="issue-id">${issue.id} · ${issue.date}</div>
+            <h4>${issue.title}</h4>
+            <div class="issue-info">
+              👤 ${issue.type} &nbsp;·&nbsp; 🗂 ${issue.category} &nbsp;·&nbsp; 📍 ${issue.location}
+              &nbsp;·&nbsp; <span style="color:${urgColor};font-weight:600;">${issue.urgency} urgency</span>
+            </div>
+          </div>
+          <div><span class="badge ${badgeClass}">${issue.status}</span></div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Filter ──
+  function filterIssues(status, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filtered = status === 'all' ? issues : issues.filter(i => i.status === status);
+    renderIssues(filtered);
+  }
+
+  // Init tracker
+  renderIssues(issues);
+</script>
+</body>
+</html>
